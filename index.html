@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>弓道的中記録 Webアプリ (4 Targets)</title>
+  <style>
+    /* 4つの的を横並びにする */
+    .targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    /* それぞれの的ブロック */
+    .target-block {
+      display: inline-block;
+      text-align: center;
+    }
+    /* 的コンテナは相対配置（内部のマーカーやオーバーレイのため） */
+    .target-container {
+      position: relative;
+      display: inline-block;
+      border: 1px solid #ccc;
+    }
+    /* 画像はブロック表示 */
+    .target-image {
+      display: block;
+      width: 300px;  /* 必要に応じてサイズを調整 */
+      height: auto;
+    }
+    /* クリックで追加するマーカーのスタイル */
+    .marker {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: rgba(255, 0, 0, 0.7);
+      color: #fff;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+      pointer-events: none;
+    }
+    /* 画像上に重ねるテキスト入力 */
+    .target-name-input {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      padding: 2px 4px;
+      width: 140px;
+    }
+    /* 入力内容を反映する名前表示（入力内容と重ねる） */
+    .name-display {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 9;
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 4px;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+    /* リセットボタンのスタイル */
+    .resetButton {
+      margin-top: 5px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>弓道的中記録 (4 Targets)</h1>
+  <div class="targets">
+    <!-- それぞれの的ブロック。target.jpg は適宜的画像のファイル名に変更してください -->
+    <div class="target-block">
+      <div class="target-container" data-shot-count="0">
+        <img class="target-image" src="target.jpg" alt="的1">
+        <input type="text" class="target-name-input" placeholder="名前入力">
+        <span class="name-display"></span>
+      </div>
+      <button class="resetButton">リセット</button>
+    </div>
+    <div class="target-block">
+      <div class="target-container" data-shot-count="0">
+        <img class="target-image" src="target.jpg" alt="的2">
+        <input type="text" class="target-name-input" placeholder="名前入力">
+        <span class="name-display"></span>
+      </div>
+      <button class="resetButton">リセット</button>
+    </div>
+    <div class="target-block">
+      <div class="target-container" data-shot-count="0">
+        <img class="target-image" src="target.jpg" alt="的3">
+        <input type="text" class="target-name-input" placeholder="名前入力">
+        <span class="name-display"></span>
+      </div>
+      <button class="resetButton">リセット</button>
+    </div>
+    <div class="target-block">
+      <div class="target-container" data-shot-count="0">
+        <img class="target-image" src="target.jpg" alt="的4">
+        <input type="text" class="target-name-input" placeholder="名前入力">
+        <span class="name-display"></span>
+      </div>
+      <button class="resetButton">リセット</button>
+    </div>
+  </div>
+
+  <script>
+    // 各的ブロックごとに処理を実装
+    document.querySelectorAll('.target-block').forEach(function(block) {
+      const container = block.querySelector('.target-container');
+      const image = block.querySelector('.target-image');
+      const resetButton = block.querySelector('.resetButton');
+      const nameInput = block.querySelector('.target-name-input');
+      const nameDisplay = block.querySelector('.name-display');
+
+      // 入力が変更されたら、名前表示に反映
+      nameInput.addEventListener('input', function() {
+          nameDisplay.innerText = nameInput.value;
+      });
+
+      // 画像をクリックするとマーカーを追加（クリック座標は的コンテナ内の位置で計算）
+      image.addEventListener('click', function(e) {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // datasetに保存している shotCount を更新
+        let count = parseInt(container.dataset.shotCount, 10) + 1;
+        container.dataset.shotCount = count;
+        
+        // マーカー要素を作成
+        const marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.innerText = count;
+        // マーカーの中央に配置（マーカーサイズ20pxの半分を引く）
+        marker.style.left = (x - 10) + 'px';
+        marker.style.top = (y - 10) + 'px';
+        
+        container.appendChild(marker);
+      });
+
+      // リセットボタンで、その的のマーカーを削除し、カウントをリセット
+      resetButton.addEventListener('click', function() {
+        container.querySelectorAll('.marker').forEach(function(marker) {
+          marker.remove();
+        });
+        container.dataset.shotCount = "0";
+      });
+    });
+  </script>
+</body>
+</html>
